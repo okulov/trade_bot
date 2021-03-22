@@ -47,8 +47,8 @@ async def main():
     data_time = {}
     for key, figi_code in figi.items():
         for year in years:
-            response = await client.get_market_candles(figi=figi_code, from_=datetime(year, 3, 12, 0, 0),
-                                                       to=datetime(year + 1, 3, 11, 23, 45),
+            response = await client.get_market_candles(figi=figi_code, from_=datetime(year, 3, 23, 0, 0),
+                                                       to=datetime(year + 1, 3, 22, 23, 45),
                                                        interval=ti.CandleResolution.day)
             for d in response.payload.candles:
                 data_time = {
