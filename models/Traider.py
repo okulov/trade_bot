@@ -17,6 +17,7 @@ class Traider():
         result_strategy = strategy(data)
         is_possible = False
         type_deal = ''
+        #print(data)
         if self.journal.get_orders().empty:
             is_possible = True
             type_deal = 'open'
@@ -54,16 +55,22 @@ class Traider():
         amount = amount if amount else self.amount
         stop_loss = None
         take_profit = None
-        price = data[-1:]['Open'].values if price else price
+        price = data[-1:]['Open'].values[0] if not price else price
+        if source != 'strategy':
+            if stop_loss_price:
+                price = stop_loss_price
+            if take_profit_price:
+                price = take_profit_price
         order = {
             'date': data[-1:].index,
-            'price': data[-1:]['Open'].values,
+            'price': [price],
             'amount': [amount],
             'action': [action],
-            'sum': [coef * data[-1:]['Open'].values[0] * amount],
+            'sum': [coef * price * amount],
             'status': [type],
             'source': source
         }
+
         self.balance += order['sum'][0]
         order['balance'] = self.balance
 

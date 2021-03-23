@@ -2,7 +2,7 @@ import asyncio
 import csv
 import json
 from datetime import datetime
-
+import pandas as pd
 import tinvest as ti
 import asyncio
 from tinvest import AsyncClient
@@ -31,7 +31,7 @@ figi = {
 
 years = [2014, 2015, 2016, 2017, 2018, 2019, 2020]
 
-
+day = False
 # years = [2015]
 
 
@@ -45,14 +45,52 @@ async def main():
     # response = await client.get_accounts()  # tinvest.PortfolioResponse
     data = []
     data_time = {}
+    if day:
+        for key, figi_code in figi.items():
+            for year in years:
+                response = await client.get_market_candles(figi=figi_code, from_=datetime(year, 3, 23, 0, 0),
+                                                           to=datetime(year + 1, 3, 22, 23, 45),
+                                                           interval=ti.CandleResolution.day)
+                for d in response.payload.candles:
+                    data_time = {
+                        'date': d.time.strftime('%e-%m-%Y'),
+                        'Open': d.o,
+                        'High': d.h,
+                        'Low': d.l,
+                        'Close': d.c,
+                        'Volume': d.v,
+                        'figi': d.figi,
+                    }
+                    data.append(data_time)
+
+        #await client.close()
+
+
+        with open('data/day_data.csv', 'w', newline='') as f_n:
+            F_N_WRITER = csv.DictWriter(f_n, fieldnames=list(data[0].keys()),
+                                        quoting=csv.QUOTE_NONNUMERIC)
+            F_N_WRITER.writeheader()
+            for d in data:
+                F_N_WRITER.writerow(d)
+
+    years = [2021]
+    data = []
+    start_date = datetime(years[0], 1, 1)
+    end_date = datetime(years[0], 3, 22)
+
+    res = pd.date_range(
+            min(start_date, end_date),
+            max(start_date, end_date)
+    ).tolist()
     for key, figi_code in figi.items():
-        for year in years:
-            response = await client.get_market_candles(figi=figi_code, from_=datetime(year, 3, 23, 0, 0),
-                                                       to=datetime(year + 1, 3, 22, 23, 45),
-                                                       interval=ti.CandleResolution.day)
+        for date in res:
+            response = await client.get_market_candles(figi=figi_code, from_=datetime(date.year, date.month, date.day, 0,0),
+                                                       to=datetime(date.year, date.month, date.day, 23,45),
+                                                       interval=ti.CandleResolution.hour)
             for d in response.payload.candles:
+                #print(d.time)
                 data_time = {
-                    'date': d.time.strftime('%e-%m-%Y'),
+                    'date': d.time.strftime('%e-%m-%Y %H:%M'),
                     'Open': d.o,
                     'High': d.h,
                     'Low': d.l,
@@ -60,13 +98,11 @@ async def main():
                     'Volume': d.v,
                     'figi': d.figi,
                 }
+                #print(data_time['date'])
                 data.append(data_time)
 
     await client.close()
-    # print(data[1])
-    # print(len(data))
-
-    with open('data/day_data.csv', 'w', newline='') as f_n:
+    with open('data/hour_data.csv', 'w', newline='') as f_n:
         F_N_WRITER = csv.DictWriter(f_n, fieldnames=list(data[0].keys()),
                                     quoting=csv.QUOTE_NONNUMERIC)
         F_N_WRITER.writeheader()

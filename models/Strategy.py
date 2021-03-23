@@ -42,14 +42,48 @@ class StrategyMACD_Day(Strategy):
         super().__init__()
         self.macd: list
 
-    def define_trend(self):
-        temp = random.choice(['no_change', 'change_up', 'change_down', 'false_change', 'maybe_change'])
-        return temp
+    def define_trend(self, macd_values):
+        m1, m2, m3 = macd_values
+        # print(m1,m2,m3)
+
+        #Пересечения с нулем линии macdhist
+        if m2 > 0 and m3 > 0 and m1 < 0:
+            result = 'change_up'
+        elif m2 < 0 and m3 < 0 and m1 > 0:
+            result = 'change_down'
+        elif (m2 > 0 and m3 < 0 and m1 < 0) or (m2 < 0 and m3 > 0 and m1 > 0):
+            result = 'false_change'
+        elif (m2 < 0 and m3 < 0 and m1 < 0) or (m2 > 0 and m3 > 0 and m1 > 0):
+            result = 'no_change'
+        elif (m2 < 0 and m3 > 0 and m1 < 0) or (m2 > 0 and m3 < 0 and m1 > 0):
+            result = 'maybe_change'
+
+        #Проверка на смену тренда
+        if (m2 < m3 and m2 < m1) :
+            result = 'change_up'
+        elif (m2 > m3 and m2 > m1):
+            result = 'change_down'
+
+        #Проверка на сохранение тренда
+        if (m2 < m3 and m2 > m1) :
+            result = 'change_up'
+        elif (m2 > m3 and m2 < m1):
+            result = 'change_down'
+
+        # temp = random.choice(['no_change', 'change_up', 'change_down', 'false_change', 'maybe_change'])
+        # print(result)
+        return result
 
     def calculate(self):
+        local_trend = ''
         macd = talib.MACD(self.data['Close'])
-        local_trend = self.define_trend()
-        if local_trend in ['no_change', 'false_change', 'maybe_change']:
+        open_price = self.today['Open'].values[0]
+        last_close = self.data['Close'][-3:].values
+        no_empty = not (True in macd[2][-3:].isna().values)
+        if no_empty:
+            # print(macd[2])
+            local_trend = self.define_trend(macd[2][-3:].values)
+        if local_trend in ['no_change', 'false_change', 'maybe_change', '']:
             self.activity = False
         elif local_trend in ['change_up', 'change_down']:
             self.activity = True
@@ -60,5 +94,14 @@ class StrategyMACD_Day(Strategy):
 
         if self.activity:
             coef = -1 if self.action == 'buy' else 1
-            self.stop_loss = self.today['Open'].values[0] + coef * self.today['Open'].values[0] * 0.01
-            self.take_profit = self.today['Open'].values[0] + (-1) * coef * self.today['Open'].values[0] * 0.05
+            # if self.action == 'buy':
+            #     loss_level = min(last_close) if min(
+            #         last_close) < open_price else open_price + coef * open_price * 2 / 100
+            # else:
+            #     loss_level = max(last_close) if max(
+            #         last_close) > open_price else open_price + coef * open_price * 2 / 100
+            loss_level = 0.003
+            profit_level = 0.02
+            self.stop_loss = open_price + coef * open_price * loss_level
+            #self.stop_loss = loss_level
+            self.take_profit = open_price + (-1) * coef * open_price * profit_level

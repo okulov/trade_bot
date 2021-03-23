@@ -21,14 +21,19 @@ class Stock():
             if direction == 'sell':
                 action = 'buy'
                 if self.data['High'] >= stop_loss:
-                    self.traider.new_order(day_data, type='close', action=action, price=stop_loss, source='stop_loss')
-                elif take_profit and self.data['Low'] <=take_profit:
-                    self.traider.new_order(day_data, type='close', action=action, price=take_profit, source='take_profit')
+                    self.traider.new_order(day_data, type='close', action=action, price='', stop_loss_price=stop_loss,
+                                           source='stop_loss')
+                elif take_profit and self.data['Low'] <= take_profit:
+                    self.traider.new_order(day_data, type='close', action=action, price='',
+                                           take_profit_price=take_profit,
+                                           source='take_profit')
             else:
                 action = 'sell'
                 if self.data['Low'] <= stop_loss:
-                    self.traider.new_order(day_data, type='close', action=action, price=stop_loss, source='stop_loss')
+                    self.traider.new_order(day_data, type='close', action=action, price='', stop_loss_price=stop_loss,
+                                           source='stop_loss')
                 elif take_profit and self.data['High'] >= take_profit:
-
-                    self.traider.new_order(day_data, type='close', action=action, price=take_profit, source='take_profit')
+                    self.traider.new_order(day_data, type='close', action=action, price='',
+                                           take_profit_price=take_profit,
+                                           source='take_profit')
         # print(self.data['Close'])
