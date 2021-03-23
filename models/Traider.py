@@ -5,11 +5,11 @@ from models import Journal, Strategy
 
 class Traider():
 
-    def __init__(self, balance, journal: Journal):
+    def __init__(self, balance, journal: Journal, amount=20):
         self.balance = balance
         self.journal = journal
+        self.amount = amount
         self.simulate = True
-        self.amount = 20
 
     def trade(self, data: pd.DataFrame, strategy: Strategy, periods='', simulate=True):
         amount = self.amount

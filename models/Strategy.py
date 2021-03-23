@@ -7,10 +7,11 @@ class Strategy():
 
     def __init__(self):
         self.data: pd.DataFrame
+        self.trend: str
         self.activity: bool
-        self.action: str
-        self.stop_loss: str
-        self.take_profit: str
+        self.action = ''
+        self.stop_loss = ''
+        self.take_profit = ''
         self.result = {}
 
     def calculate(self):
@@ -35,13 +36,29 @@ class StartegyBase(Strategy):
         self.stop_loss = self.today['Open'].values[0] + coef * self.today['Open'].values[0] * 0.01
         self.take_profit = self.today['Open'].values[0] + (-1) * coef * self.today['Open'].values[0] * 0.05
 
-class StrategyMACD(Strategy):
+
+class StrategyMACD_Day(Strategy):
+    def __init__(self):
+        super().__init__()
+        self.macd: list
+
+    def define_trend(self):
+        temp = random.choice(['no_change', 'change_up', 'change_down', 'false_change', 'maybe_change'])
+        return temp
+
     def calculate(self):
-        print(self.data['Close'])
-        # macd = talib.MACD(self.data['Close'])
-        # print(macd)
-        self.activity = True
-        self.action = random.choice(['buy', 'sell'])
-        coef = -1 if self.action == 'buy' else 1
-        self.stop_loss = self.today['Open'].values[0] + coef * self.today['Open'].values[0] * 0.01
-        self.take_profit = self.today['Open'].values[0] + (-1) * coef * self.today['Open'].values[0] * 0.05
+        macd = talib.MACD(self.data['Close'])
+        local_trend = self.define_trend()
+        if local_trend in ['no_change', 'false_change', 'maybe_change']:
+            self.activity = False
+        elif local_trend in ['change_up', 'change_down']:
+            self.activity = True
+            if local_trend == 'change_up':
+                self.action = 'buy'
+            elif local_trend == 'change_down':
+                self.action = 'sell'
+
+        if self.activity:
+            coef = -1 if self.action == 'buy' else 1
+            self.stop_loss = self.today['Open'].values[0] + coef * self.today['Open'].values[0] * 0.01
+            self.take_profit = self.today['Open'].values[0] + (-1) * coef * self.today['Open'].values[0] * 0.05
