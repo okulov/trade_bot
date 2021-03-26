@@ -2,6 +2,8 @@ import asyncio
 import csv
 import json
 from datetime import datetime
+from time import sleep
+
 import pandas as pd
 import tinvest as ti
 import asyncio
@@ -76,17 +78,22 @@ async def main():
     years = [2021]
     data = []
     start_date = datetime(years[0], 1, 1)
-    end_date = datetime(years[0], 3, 22)
+    end_date = datetime(years[0], 3, 25)
 
     res = pd.date_range(
             min(start_date, end_date),
             max(start_date, end_date)
     ).tolist()
+    print(len(res))
+    i=0
     for key, figi_code in figi.items():
         for date in res:
+            i+=1
             response = await client.get_market_candles(figi=figi_code, from_=datetime(date.year, date.month, date.day, 0,0),
                                                        to=datetime(date.year, date.month, date.day, 23,45),
                                                        interval=ti.CandleResolution.hour)
+            sleep(1)
+            print(i)
             for d in response.payload.candles:
                 #print(d.time)
                 data_time = {

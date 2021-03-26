@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 s1 = pd.Series([5, 6, 7])
 s2 = pd.Series([7, 8, 9])
@@ -32,21 +33,5 @@ df = df[-2:]
 print(df)
 print(True in df['D'].isna().values)
 
-from calendar import Calendar
-c = Calendar()
-print(max(c.monthdatescalendar(2020,8)))
-print(c.monthdatescalendar(2020,9))
-for month in range(1,13):
-    print(month)
-
-import datetime as DT
-import pandas as pd
-
-start_date = DT.datetime(2018, 8, 5)
-end_date = DT.datetime(2018, 7, 28)
-
-res = pd.date_range(
-        min(start_date, end_date),
-        max(start_date, end_date)
-).tolist()
-print(res[1].year, res[1].day,res[1].month)
+#np.linspace(2.0, 3.0, num=5)
+print(np.linspace(0, 6, num=7, retstep=True))

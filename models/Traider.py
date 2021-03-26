@@ -6,6 +6,7 @@ from models import Journal, Strategy
 class Traider():
 
     def __init__(self, balance, journal: Journal, amount=20):
+        self.start_balance = balance
         self.balance = balance
         self.journal = journal
         self.amount = amount
@@ -17,7 +18,7 @@ class Traider():
         result_strategy = strategy(data)
         is_possible = False
         type_deal = ''
-        #print(data)
+        # print(data)
         if self.journal.get_orders().empty:
             is_possible = True
             type_deal = 'open'
@@ -70,8 +71,8 @@ class Traider():
             'status': [type],
             'source': source
         }
-
         self.balance += order['sum'][0]
+        order['income'] = [0]
         order['balance'] = self.balance
 
         if type == 'open':
@@ -101,6 +102,8 @@ class Traider():
             ind = len(self.journal.get_orders()) - 1
             self.journal.change_value(index=ind, column='status', new='close', type='orders')
             self.journal.change_value(index=ind, column='status', new='close', type='limits')
+            order['income'] = coef * (price - self.journal.get_orders().loc[ind]['price']) * amount
+            # print(self.journal.get_orders().loc[ind]['price'])
 
         if self.simulate:
             self.fix_transaction(order)
@@ -114,3 +117,7 @@ class Traider():
                 self.set_on_stock(stop_loss)
             if take_profit:
                 self.set_on_stock(take_profit)
+
+    def restart(self):
+        self.balance = self.start_balance
+        self.journal.clear()
