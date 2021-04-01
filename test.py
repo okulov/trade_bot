@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pandas as pd
 import numpy as np
 
@@ -35,3 +37,4 @@ print(True in df['D'].isna().values)
 
 #np.linspace(2.0, 3.0, num=5)
 print(np.linspace(0, 6, num=7, retstep=True))
+print(datetime.now().day-34)

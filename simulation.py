@@ -15,7 +15,7 @@ data_limit_MACD = 33
 # data_limit_MACD = 0
 
 balance = 0
-amount = 200
+amount = 100
 
 journal = Journal()
 traider = Traider(balance, journal, amount)
@@ -40,9 +40,10 @@ for i in range(data_limit_MACD, len(df)):
     traider.trade(data_, strategy=StrategyMACD_Day(loss_level=loss, profit_level=profit, macd_level=macd_level,
                                                    target_stability=target_stability))
     # traider.trade(data_, strategy=StartegyBase())
-    stock.day_trade(data_[i:i + 1])
+    stock.interval_trade(data_[i:i + 1])
 
 print(journal.get_orders())
+print(journal.get_limits())
 journal.save_to_csv()
 
 
@@ -59,7 +60,7 @@ def search_limits():
                         traider.trade(data_, strategy=StrategyMACD_Day(loss_level=loss, profit_level=profit,
                                                                        macd_level=macd_level,
                                                                        target_stability=int(target_stability)))
-                        stock.day_trade(data_[i:i + 1])
+                        stock.interval_trade(data_[i:i + 1])
                     try:
                         exp = {
                             'loss': round(loss, 3),

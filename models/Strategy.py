@@ -11,8 +11,8 @@ class Strategy():
         self.trend: str
         self.activity: bool
         self.action = ''
-        self.stop_loss = ''
-        self.take_profit = ''
+        self.stop_loss = 0
+        self.take_profit = 0
         self.result = {}
         self.params = params
 
@@ -25,8 +25,8 @@ class Strategy():
         self.calculate()
         self.result = {'activity': self.activity,
                        'action': self.action,
-                       'stop_loss': self.stop_loss,
-                       'take_profit': self.take_profit}
+                       'stop_loss': round(self.stop_loss, 2),
+                       'take_profit': round(self.take_profit, 2)}
         return self.result
 
 
@@ -47,14 +47,13 @@ class StrategyMACD_Day(Strategy):
         self.target_stability = self.params['target_stability']
 
     def calculate(self):
-
         loss_level = self.params['loss_level']
         profit_level = self.params['profit_level']
         macd_level = self.params['macd_level']
 
         local_trend = ''
         macd = talib.MACD(self.data['Close'])
-        open_price = self.today['Open'].values[0]
+        open_price = float(self.today['Open'].values[0])
         last_close = self.data['Close'][-3:].values
         no_empty = not (True in macd[2][-3:].isna().values)
         if no_empty:
@@ -79,6 +78,8 @@ class StrategyMACD_Day(Strategy):
             #         last_close) > open_price else open_price + coef * open_price * 2 / 100
             # loss_level = 0.003
             # profit_level = 0.02
+            # print(open_price, coef, open_price, loss_level)
+            # print(type(open_price), type(coef), type(open_price), type(loss_level))
             self.stop_loss = open_price + coef * open_price * loss_level
             # self.stop_loss = loss_level
             self.take_profit = open_price + (-1) * coef * open_price * profit_level
