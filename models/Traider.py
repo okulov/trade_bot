@@ -5,15 +5,16 @@ from models import Journal, Strategy
 
 class Traider():
 
-    def __init__(self, balance, journal: Journal, amount=20, simulate=True, sandbox=True):
+    def __init__(self, balance, journal: Journal, amount=20, simulate=True, sandbox=True, figi=''):
         self.start_balance = balance
         self.balance = balance
         self.journal = journal
         self.amount = amount
         self.simulate = simulate
         self.sandbox = sandbox
+        self.figi = figi
 
-    def trade(self, data: pd.DataFrame, strategy: Strategy, periods=''):
+    def trade(self, data: pd.DataFrame, strategy: Strategy):
         amount = self.amount
         result_strategy = strategy(data)
         is_possible = False
@@ -91,7 +92,8 @@ class Traider():
             ind = len(self.journal.get_orders()) - 1
             self.journal.change_value(index=ind, column='status', new='close', type='orders')
             self.journal.change_value(index=ind, column='status', new='close', type='limits')
-            order['income'] = coef * (price - float(self.journal.get_orders().loc[ind]['price'])) * amount
+            income = coef * (price - float(self.journal.get_orders().loc[ind]['price'])) * amount
+            order['income'] = round(income, 2)
             # print(self.journal.get_orders().loc[ind]['price'])
 
         if self.simulate:

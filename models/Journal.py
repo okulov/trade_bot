@@ -1,6 +1,7 @@
 import csv
 import datetime
 import os
+import random
 
 import pandas as pd
 
@@ -14,8 +15,9 @@ class Journal():
         self.limits = pd.DataFrame([], columns=self.columns_limits)
         self.orders = pd.DataFrame([], columns=self.columns_orders)
         self.mode = mode
-        self.name_file_limits = f'journals/limits_{datetime.datetime.now().strftime("%d_%m_%y_%H_%M")}.csv'
-        self.name_file_orders = f'journals/orders_{datetime.datetime.now().strftime("%d_%m_%y_%H_%M")}.csv'
+        r_int = random.randint(10000, 1000000)
+        self.name_file_limits = f'journals/limits_{datetime.datetime.now().strftime("%d_%m_%y_%H_%M")}_{r_int}.csv'
+        self.name_file_orders = f'journals/orders_{datetime.datetime.now().strftime("%d_%m_%y_%H_%M")}_{r_int}.csv'
         self.create_files()
 
     def write_order(self, order):

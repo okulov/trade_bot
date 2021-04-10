@@ -6,7 +6,7 @@ import pandas as pd
 import tinvest as ti
 from tinvest import MarketOrderRequest, SandboxSetCurrencyBalanceRequest, LimitOrderRequest
 
-from models import Journal, Traider, Stock, StrategyMACD_Day
+from models import Journal, Traider, Stock, StrategyMACD_Day, Analysis
 
 TOKEN = "t.fPUeRgDE9xkUbo4JTCxF4257U0QVkigXRk80u_mHGkNxn7vFq3Y0hOdi4REbliwcNAZYaiyCZZb8rrR5qQlffQ"
 figi = 'BBG004730N88'
@@ -61,6 +61,7 @@ async def main(broker_account_id=None):
 
     journal = Journal(mode='debug')
     traider = Traider(balance, journal, amount)
+    analysis = Analysis(journal)
     stock = Stock(traider, journal)
     client = ti.AsyncClient(TOKEN, use_sandbox=True)
     data = await get_data(client, figi)
@@ -70,6 +71,7 @@ async def main(broker_account_id=None):
     traider.trade(df, strategy=StrategyMACD_Day(loss_level=loss, profit_level=profit, macd_level=macd_level,
                                                 target_stability=target_stability))
     stock.interval_trade(df[-1:])
+    analysis.score()
     no_update = True
     async with ti.Streaming(TOKEN, receive_timeout=20, reconnect_timeout=10, heartbeat=20) as streaming:
         await streaming.candle.subscribe(figi, ti.CandleResolution.min5)
@@ -87,9 +89,12 @@ async def main(broker_account_id=None):
                 traider.trade(df, strategy=StrategyMACD_Day(loss_level=loss, profit_level=profit, macd_level=macd_level,
                                                             target_stability=target_stability))
                 stock.interval_trade(df[-1:])
+                analysis.score()
             elif event.payload.time.strftime('%e-%m-%Y %H:%M') == data[-1]['date']:
                 no_update = True
             #print(journal.get_orders())
+
+
 
 
 asyncio.run(main())
