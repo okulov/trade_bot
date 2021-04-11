@@ -101,7 +101,7 @@ async def main():
                                                                from_=datetime(date.year, date.month, date.day, 0, 0),
                                                                to=datetime(date.year, date.month, date.day, 23, 45),
                                                                interval=ti.CandleResolution.hour)
-                    sleep(0.3)
+                    sleep(0.5)
                     for d in response.payload.candles:
                         # print(d.time)
                         data_time = {

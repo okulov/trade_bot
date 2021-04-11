@@ -10,7 +10,7 @@ from lists import sync_lists
 from models import Traider, Journal, StartegyBase, Stock, StrategyMACD_Day, Analysis
 
 dateparse = lambda x: datetime.strptime(x, '%d-%m-%Y %H:%M')
-data_all = pd.read_csv('data/hour_data.csv', index_col=0, parse_dates=['date'], date_parser=dateparse)
+#data_all = pd.read_csv('data/hour_data.csv', index_col=0, parse_dates=['date'], date_parser=dateparse)
 data_all = pd.read_csv('data/new_hour_data.csv', index_col=0, parse_dates=['date'], date_parser=dateparse)
 data_all.index.name = 'date'
 # data = data_all[data_all['figi'] == 'BBG004730N88']
